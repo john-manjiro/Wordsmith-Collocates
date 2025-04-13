@@ -25,13 +25,11 @@ const actionTypes = {
   REMOVE_TOAST: "REMOVE_TOAST",
 } as const
 
-let count = 0
 
-function genId() {
-  count = (count + 1) % Number.MAX_SAFE_INTEGER
-  return count.toString()
+function genId(currentCount: number) {
+  const newCount = (currentCount + 1) % Number.MAX_SAFE_INTEGER
+  return [newCount, newCount.toString()];
 }
-
 type ActionType = typeof actionTypes
 
 type Action =
@@ -66,7 +64,7 @@ const addToRemoveQueue = (toastId: string) => {
   const timeout = setTimeout(() => {
     toastTimeouts.delete(toastId)
     dispatch({
-      type: "REMOVE_TOAST",
+      type: "REMOVE_TOAST",    
       toastId: toastId,
     })
   }, TOAST_REMOVE_DELAY)
@@ -129,22 +127,20 @@ export const reducer = (state: State, action: Action): State => {
   }
 }
 
-const listeners: Array<(state: State) => void> = []
-
-let memoryState: State = { toasts: [] }
-
-function dispatch(action: Action) {
-  memoryState = reducer(memoryState, action)
-  listeners.forEach((listener) => {
-    listener(memoryState)
-  })
-}
 
 type Toast = Omit<ToasterToast, "id">
 
-function toast({ ...props }: Toast) {
-  const id = genId()
+function toast({ ...props }: Toast, dispatch: React.Dispatch<Action>, count: number) {
+  const [newCount, id] = genId(count);
 
+
+  const update = (props: ToasterToast) =>
+      dispatch({
+        type: "UPDATE_TOAST",
+        toast: { ...props, id },
+      });
+  
+  const dismiss = () => dispatch({ type: "DISMISS_TOAST", toastId: id })
   const update = (props: ToasterToast) =>
     dispatch({
       type: "UPDATE_TOAST",
@@ -172,21 +168,22 @@ function toast({ ...props }: Toast) {
 }
 
 function useToast() {
-  const [state, setState] = React.useState<State>(memoryState)
+  const [count, setCount] = React.useState<number>(0);
+  const [state, dispatch] = React.useReducer(reducer, { toasts: [] });
 
-  React.useEffect(() => {
-    listeners.push(setState)
-    return () => {
-      const index = listeners.indexOf(setState)
-      if (index > -1) {
-        listeners.splice(index, 1)
-      }
-    }
-  }, [state])
+  const handleToast = React.useCallback(
+    (props: Toast) => {
+      setCount(prevCount => {
+        toast(props, dispatch, prevCount);
+        return prevCount + 1;
+      });
+    },
+    [dispatch]
+  );
 
   return {
     ...state,
-    toast,
+    toast: handleToast,
     dismiss: (toastId?: string) => dispatch({ type: "DISMISS_TOAST", toastId }),
   }
 }
