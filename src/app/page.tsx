@@ -13,17 +13,21 @@ import { Toaster } from "@/components/ui/toaster";
 const useLocalStorage = (key: string, initialValue: string[]) => {
   const [storedValue, setStoredValue] = useState<string[]>(() => {
     try {
-      const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
+      if (typeof window !== 'undefined'){
+        const item = window.localStorage.getItem(key);
+        return item ? JSON.parse(item) : initialValue;
+      }
+      return initialValue;
     } catch (error) {
       console.error("Error reading from localStorage:", error);
       return initialValue;
     }
   });
 
-  useEffect(() => {
-    try {
-      window.localStorage.setItem(key, JSON.stringify(storedValue));
+    useEffect(() => {
+    try {      
+      if (typeof window !== 'undefined')
+        window.localStorage.setItem(key, JSON.stringify(storedValue));
     } catch (error) {
       console.error("Error writing to localStorage:", error);
     }

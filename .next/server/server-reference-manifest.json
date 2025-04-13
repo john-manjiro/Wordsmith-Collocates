@@ -1,17 +1,1 @@
-{
-  "node": {
-    "4089872df50be1e971bd7932162737e794d9cfdc10": {
-      "workers": {
-        "app/page": {
-          "moduleId": "[project]/.next-internal/server/app/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/flows/analyze-collocations.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
-          "async": false
-        }
-      },
-      "layer": {
-        "app/page": "action-browser"
-      }
-    }
-  },
-  "edge": {},
-  "encryptionKey": "xFcee967+MHx9wvuNrHN46dLEHLGUiOu3PHr6fnMT/c="
-}
+{"node":{"40175a18b31f4c681d710acd471bc16c3172158105":{"workers":{"app/page":{"moduleId":"22485","async":false}},"layer":{"app/page":"action-browser"}}},"edge":{},"encryptionKey":"wiBCOvheEvm9A/8wm6+jsLNPheHYiuomOX16ExpaOFY="}
